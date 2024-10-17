@@ -1,0 +1,1 @@
+./build/MatCo -d example/data_graph/yeast.graph -q example/query_graph/query_3.graph -e false -p true
