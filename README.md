@@ -27,7 +27,7 @@ cd build
 
 Generate the build system using CMake and compile the project:
 
-```
+```bash
 cmake ..
 make
 ```
