@@ -9,6 +9,9 @@
 #include <unordered_map>
 #include "utils/timer.hpp"
 #include <unordered_set>
+#include <set>
+#include <fstream>
+#include <sstream>
 
 class MatCo : public matching
 {
@@ -28,12 +31,14 @@ public:
 
     void Preprocessing() override;
     void InitialMatching() override;
+    void PrintKeyVertexSet();
+    bool VerifyCorrectness(const std::string &kv_path);
     
 
 
 private:
     void GenerateMatchingOrder();
-    void BuildMutiExpMOrder();
+    void BuildCP2LEOrder();
     void BuildAdjMatrix();
 
     void BuildCover();
@@ -49,6 +54,8 @@ private:
 
 
     void PrintMatch(const std::vector<uint> &m);
+
+    
     
     void FindMatCo(uint depth, std::vector<uint> m);
     

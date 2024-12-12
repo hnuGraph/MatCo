@@ -22,8 +22,8 @@ void MatCo::Preprocessing()
 {
     
     GenerateMatchingOrder();
-    #ifdef MutiExp
-    BuildMutiExpMOrder();
+    #ifdef CP2LE
+    BuildCP2LEOrder();
     #endif
     BuildAdjMatrix();
 }
@@ -75,8 +75,8 @@ void MatCo::BuildAdjMatrix(){
     }
     if(print_preprocessing_results_) std::cout<<"prune_depth_: "<<prune_depth_<<std::endl;
 }
-void MatCo::BuildMutiExpMOrder(){
-    if(print_preprocessing_results_) std::cout<<"BuildMutiExpMOrder...."<<std::endl;
+void MatCo::BuildCP2LEOrder(){
+    if(print_preprocessing_results_) std::cout<<"BuildCP2LEOrder...."<<std::endl;
     mutiexp_depth_ = UINT32_MAX;
     int sum = 0;
     for(int i = query_.NumVertices()-1; i>=0; i--){
@@ -100,12 +100,12 @@ void MatCo::BuildMutiExpMOrder(){
     mutiexp_depth_ = query_.NumVertices()-sum;
     std::reverse(match_order.begin() + mutiexp_depth_,  match_order.end());
     if(print_preprocessing_results_){
-        std::cout<<"MutiExpMatchOrder: "<<std::endl;
+        std::cout<<"CP2LEOrder: "<<std::endl;
         for(int i =0 ; i<query_.NumVertices();i++){
             std::cout<<match_order[i]<<" ";
         }
         std::cout<<std::endl;
-        std::cout<<"mutiexp_depth_:"<<mutiexp_depth_;
+        std::cout<<"CP2LE_depth_:"<<mutiexp_depth_;
     }
     std::cout<<std::endl;
     
@@ -228,7 +228,7 @@ void MatCo::FindMatCo(uint depth, std::vector<uint> m)
     if(depth>=prune_depth_&&FullCoveragePrune(depth,m)) return;
     #endif
 
-    #ifdef MutiExp
+    #ifdef CP2LE
     if(depth == mutiexp_depth_){
         muti_exp_num++;
         MutiExpansion(m);
@@ -365,6 +365,46 @@ void MatCo::PrintMatch(const std::vector<uint> &m){
     }
     std::cout << std::endl;
 }
+
+void MatCo::PrintKeyVertexSet(){
+    for(uint i = 0 ; i<KeyVertexSet.size();i++){
+        if(KeyVertexSet[i]) std::cout<<i<<" ";
+    }
+    std::cout<<std::endl;
+}
+
+bool MatCo::VerifyCorrectness(const std::string& kvPath) {
+    std::ifstream inputFile(kvPath);
+    if (!inputFile.is_open()) {
+        std::cerr << "无法打开文件: " << kvPath << std::endl;
+        return false;
+    }
+
+    std::set<int> kvSet;
+    for(auto i = 0; i < KeyVertexSet.size(); i++){
+        if(KeyVertexSet[i]) kvSet.insert(i);
+    }
+
+    std::set<int> verifySet;
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        std::stringstream ss(line);
+        std::string number;
+        
+        while (std::getline(ss, number, ',')) {
+            try {
+                verifySet.insert(std::stoi(number));
+            } catch (const std::invalid_argument&) {
+                std::cerr << "Invalid: " << number << std::endl;
+                return false;
+            }
+        }
+    }
+
+    //VerifyCorrectness
+    return kvSet == verifySet;
+}
+
 
 bool MatCo::MutiExpTest(int depth,const std::vector<uint> &label_same_index, std::vector<uint> &m) {
     if(reach_time_limit) return false;

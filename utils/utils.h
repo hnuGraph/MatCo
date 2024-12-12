@@ -65,6 +65,20 @@ namespace mem {
         fclose(file);
         return result;
     }
+
+    inline int getMemUsage(){ //Note: this value is in KB!
+        FILE* file = fopen("/proc/self/status", "r");
+        int result = -1;
+        char line[128];
+
+        while (fgets(line, 128, file) != NULL){
+            if (strncmp(line, "VmHWM:", 6) == 0) {
+                result = parseLine(line);  // RSS
+            }
+        }
+        fclose(file);
+        return result;
+    }
 }
 
 #endif //UTILS_UTILS

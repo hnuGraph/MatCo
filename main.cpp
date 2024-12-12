@@ -9,13 +9,17 @@
 
 int main(int argc, char *argv[]){
     CLI::App app{"App description"};
-    bool print_enum = false, print_prep = false;
+    bool print_enum = false, print_prep = false, print_key_vertice = false;
     std::string data_graph_path;
     std::string query_graph_path;
+    std::string verify_correctness;
     app.add_option("-d,--data_graph_path", data_graph_path, "data_graph_path")->required();
     app.add_option("-q,--query_graph_path", query_graph_path, "query_graph_path")->required();
-    app.add_option("-e,--print_enum", print_enum, "print_enum")->default_val(true);
-    app.add_option("-p,--print_prep", print_prep, "print_prep")->default_val(true);
+    app.add_option("-e,--print_enum", print_enum, "print_enum")->default_val(false);
+    app.add_option("-p,--print_prep", print_prep, "print_prep")->default_val(false);
+    app.add_option("-k,--print_key_vertice", print_key_vertice, "print_key_vertice")->default_val(false);
+    app.add_option("-v,--verify_correctness", verify_correctness, "verify_correctness")->default_val("");
+
     CLI11_PARSE(app, argc, argv);
 
     Graph data_graph;
@@ -27,25 +31,26 @@ int main(int argc, char *argv[]){
     query_graph.LoadFromFile(query_graph_path);
     query_graph.PrintMetaData();
 
-    int mem_start = mem::getValue();
+    int mem_start = mem::getMemUsage();
+    Timer t;
+    t.StartTimer();
 
     MatCo *matco = nullptr;
     
     matco  = new MatCo  (query_graph, data_graph, ULONG_MAX, print_prep, print_enum, false);
     std::cout<<"MatCo preprocessing..."<<std::endl;
+
     matco->Preprocessing();
 
     std::cout<<"MatCo initial matching..."<<std::endl;
-    Timer t;
-    t.StartTimer();
+   
     auto InitialFun = [&matco]()
     {   
         matco->InitialMatching();
     };
-    execute_with_time_limit(InitialFun, 600, reach_time_limit);
+    execute_with_time_limit(InitialFun, 600*12, reach_time_limit);
 
-    int mem_end = mem::getValue();
-    
+    int mem_end = mem::getMemUsage();
     std::cout<<"MatCo finished..."<<std::endl;
     size_t MatCo_num_results = 0ul;
     size_t MatCo_num_kv = 0ul;
@@ -55,10 +60,13 @@ int main(int argc, char *argv[]){
     std::cout<<"Memory usage: "<<mem_end-mem_start<<" KB"<<std::endl;
     std::cout<<"MatCo time: "<<time_cost<<" ms"<<std::endl;
     std::cout<<"MatCo match cover size: "<<MatCo_num_results<<std::endl;
-    std::cout<<"MatCo num key vertex: "<<MatCo_num_kv<<std::endl;
+    std::cout<<"MatCo the number of key vertices: "<<MatCo_num_kv<<std::endl;
+    if(print_key_vertice) matco->PrintKeyVertexSet();
+    if(verify_correctness!="") {
+        if(matco->VerifyCorrectness(verify_correctness)) std::cout<<"Correctness verified!"<<std::endl;
+        else std::cout<<"Correctness not verified!"<<std::endl;
+    }
     return 0;
-
-
 
 }
 

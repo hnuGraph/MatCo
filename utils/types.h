@@ -10,7 +10,10 @@
 #define UNMATCHED UINT_MAX
 
 #define FullCoverage
-#define MutiExp
+
+
+// #define MutiExp
+#define CP2LE
 
 typedef uint32_t VertexID;
 typedef uint32_t LabelID;
