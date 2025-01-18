@@ -81,9 +81,9 @@ The following table outlines the command-line options supported by the applicati
 |:-------------------------------:|:---------------------------------------------:|:-----------:|:---------------:|:----------:|
 | `-d, --data_graph_path`        | Specifies the path to the data graph.       | String    | N/A           | Yes      | 
 | `-q, --query_graph_path`       | Specifies the path to the query graph.      | String    | N/A           | Yes      | 
-| `-e, --print_enum`             | Print the enumeration values.    | Boolean   | `false`        | No       | 
-| `-p, --print_prep`             | Print preparation information.   | Boolean   | `false`        | No       | 
-| `-k, --print_key_vertice`      | Print the key vertices.          | Boolean   | `false`        | No       | 
+| `-e, --print_enum`             | Print the enumeration answers.    | Bool   | `false`        | No       | 
+| `-p, --print_prep`             | Print preprocessing information.   | Bool   | `false`        | No       | 
+| `-k, --print_key_vertice`      | Print the key vertices.          | Bool   | `false`        | No       | 
 | `-v, --verify_correctness`      | Verify correctness (the file path of key vertices) .          | String   | N/A        | No       | 
 
 ## Command Example 
