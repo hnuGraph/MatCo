@@ -1,6 +1,8 @@
-# Project Build Instructions
+# MatCo: Computing Match Cover of Subgraph Query over Graph Data
 
-
+# Introduction
+We propose a new framework, called MatCo, to compute the match cover.
+This document provides users with detailed instructions on how to build, configure, and run the MatCo framework. By following these steps, users will be able to set up the environment, compile the project, and execute the system to compute the match cover between data graphs and query graphs.
 
 ## Requirements
 
@@ -33,8 +35,8 @@ root/
 │   ├── globals.cpp # Global variable
 │   ├── globals.h
 │   ├── timer.hpp # Timer
-│   ├── types.h # 
-│   └── utils.h # macro definition
+│   ├── types.h # Macro definition
+│   └── utils.h 
 ├── CMakeLists.txt
 ├── main.cpp 
 ├── MatCo.sh # Execute the given example
