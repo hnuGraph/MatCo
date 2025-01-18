@@ -167,4 +167,8 @@ The following table outlines the command-line options supported by the applicati
 The first six datasets can be found in the `example/datasets` directory.
 <!-- The [Orkut](https://snap.stanford.edu/data/com-Orkut.html) and [Twitter](https://law.di.unimi.it/webdata/twitter-2010/) datasets can be downloaded from the website. -->
 
-As the [Orkut](https://snap.stanford.edu/data/com-Orkut.html) and [Twitter](https://law.di.unimi.it/webdata/twitter-2010/) datasets are large, we do not upload them. You can easily downloaded them from the website.
+<!-- As the [Orkut](https://snap.stanford.edu/data/com-Orkut.html) and [Twitter](https://law.di.unimi.it/webdata/twitter-2010/) datasets are large, we do not upload them. You can easily downloaded them from the website. -->
+
+Due to the large size of the Orkut and Twitter datasets, they are not uploaded. You can download them directly from the respective websites:
+[Orkut](https://snap.stanford.edu/data/com-Orkut.html)
+[Twitter](https://law.di.unimi.it/webdata/twitter-2010/)
