@@ -37,10 +37,6 @@ inline void execute_with_time_limit(std::function<void()> fun, uint time_limit, 
 }
 
 namespace mem {
-    /**
-     * get peak virtual memory space of the current process
-     * https://stackoverflow.com/questions/63166/how-to-determine-cpu-and-memory-consumption-from-inside-a-process#answer-64166
-     */
     inline int parseLine(char* line){
         // This assumes that a digit will be found and the line ends in " Kb".
         int i = strlen(line);
@@ -72,7 +68,7 @@ namespace mem {
         char line[128];
 
         while (fgets(line, 128, file) != NULL){
-            if (strncmp(line, "VmHWM:", 6) == 0) {
+            if (strncmp(line, "VmHWM:", 6) == 0) { 
                 result = parseLine(line);  // RSS
             }
         }

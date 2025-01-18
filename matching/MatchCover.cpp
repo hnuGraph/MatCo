@@ -367,6 +367,7 @@ void MatCo::PrintMatch(const std::vector<uint> &m){
 }
 
 void MatCo::PrintKeyVertexSet(){
+    std::cout<<"Key vertices: ";
     for(uint i = 0 ; i<KeyVertexSet.size();i++){
         if(KeyVertexSet[i]) std::cout<<i<<" ";
     }
@@ -376,7 +377,7 @@ void MatCo::PrintKeyVertexSet(){
 bool MatCo::VerifyCorrectness(const std::string& kvPath) {
     std::ifstream inputFile(kvPath);
     if (!inputFile.is_open()) {
-        std::cerr << "无法打开文件: " << kvPath << std::endl;
+        std::cerr << "file path error: " << kvPath << std::endl;
         return false;
     }
 
