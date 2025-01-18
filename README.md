@@ -164,11 +164,5 @@ The following table outlines the command-line options supported by the applicati
   </tbody>
 </table>
 
-The first six datasets can be found in the `example/datasets` directory.
-<!-- The [Orkut](https://snap.stanford.edu/data/com-Orkut.html) and [Twitter](https://law.di.unimi.it/webdata/twitter-2010/) datasets can be downloaded from the website. -->
-
-<!-- As the [Orkut](https://snap.stanford.edu/data/com-Orkut.html) and [Twitter](https://law.di.unimi.it/webdata/twitter-2010/) datasets are large, we do not upload them. You can easily downloaded them from the website. -->
-
-Due to the large size of the Orkut and Twitter datasets, they are not uploaded. You can download them directly from the respective websites:
-[Orkut](https://snap.stanford.edu/data/com-Orkut.html)
-[Twitter](https://law.di.unimi.it/webdata/twitter-2010/)
+The first six datasets can be found in the `example/experiment/datasets` directory.Due to the large size of the Orkut and Twitter datasets, they are not uploaded. You can download them directly from the respective websites:[Orkut](https://snap.stanford.edu/data/com-Orkut.html), [Twitter](https://law.di.unimi.it/webdata/twitter-2010/).
+The query graphs used in the experiment in the paper can be found in the `example/experiment/query_graph` directory
