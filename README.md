@@ -94,7 +94,7 @@ The following table outlines the command-line options supported by the applicati
 
 ## Experiment Datasets
 
-| Dataset    | \|V\|        | \|E\|          | Degree | \|L(V)\| |
+| Dataset    |    \|V\|   |      \|E\|   | Degree |\|L(V)\||
 | :--------: | :--------: | :----------: | :----: | :----: |
 | Yeast      | 3,112      | 12,519       | 8      | 71     |
 | Human      | 4,674      | 86,282       | 36.9   | 44     |
@@ -103,8 +103,8 @@ The following table outlines the command-line options supported by the applicati
 | YouTube    | 1,134,890  | 2,987,624    | 5.3    | 25     |
 | EU-2005    | 862,644    | 16,138,468   | 37.4   | 40     |
 | Orkut      | 3,072,441  | 117,185,083  | 76.2   | 100    |
-| Twitter    | 41,652,230 | 2,405,026,092| 57     | 1000   |
+| Twitter    | 41,652,230 | 1,468,365,182| 57     | 1000   |
 
 
-The first six datasets can be found in the `example/experiment/datasets` directory.Due to the large size of the Orkut and Twitter datasets, they are not uploaded. You can download them directly from the respective websites:[Orkut](https://snap.stanford.edu/data/com-Orkut.html), [Twitter](https://law.di.unimi.it/webdata/twitter-2010/).
+The first six datasets can be found in the `example/experiment/datasets` directory.Due to the large size of the Orkut and Twitter datasets, they are not uploaded. You can download them directly from the respective websites: [Orkut](https://snap.stanford.edu/data/com-Orkut.html), [Twitter](https://law.di.unimi.it/webdata/twitter-2010/).
 The query graphs used in the experiment in the paper can be found in the `example/experiment/query_graph` directory
