@@ -33,7 +33,8 @@ public:
     uint NumVLabels() const { return vlabel_count_; }
     uint NumELabels() const { return elabel_count_; }
     uint GetDiameter() const;
-    uint GetMaxDegree() const{ return max_degree_; };
+    // return the maximum degree of the graph
+    uint GetMaxDegree() const{ return max_degree_; }; 
 
     void AddVertex(uint id, uint label);
     void RemoveVertex(uint id);

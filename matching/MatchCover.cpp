@@ -27,6 +27,7 @@ void MatCo::Preprocessing()
     #endif
     BuildAdjMatrix();
 }
+
 void MatCo::BuildAdjMatrix(){
     
     //build adjacency matrix of query graph
@@ -45,7 +46,7 @@ void MatCo::BuildAdjMatrix(){
         }
     }
 
-    //compute prune_depth_
+    //compute prune_depth_, When search depth > prune_depth_, it means no local candidate space is null. 
     std::vector<bool> AllRN(query_.NumVertices(), false);
     for(uint i = 0; i < query_.NumVertices()-1; i++)
     {
@@ -181,22 +182,28 @@ void MatCo::BuildCover()
 {
     uint max_degree_ = data_.GetMaxDegree();
     uint qsize_ = query_.NumVertices();
+    //initialize local candidate space
     CandidateSets.reserve(qsize_);
     for (int i = 0; i < qsize_; ++i) {
         CandidateSets.emplace_back();
         CandidateSets[i].reserve(qsize_);
         for (int j = 0; j < qsize_; ++j) {
             CandidateSets[i].emplace_back();
-            CandidateSets[i][j].reserve(max_degree_);
+            CandidateSets[i][j].reserve(max_degree_); // the candidate set size will not exceed the maximum degree of the data graph
         }
     }
+
+    //initialize flags of local candidate space. 
+    //True means the elements of the candidate set are all key vertices.
     CandidateSetFlag.reserve(qsize_);
     for(int i = 0; i<qsize_;i++){
         CandidateSetFlag.emplace_back();
         CandidateSetFlag[i].resize(qsize_,false);
     }
+
     std::vector<uint> m(query_.NumVertices(), UNMATCHED);
-    KeyVertexSet = std::vector<bool>(data_.NumVertices(), false);
+    KeyVertexSet = std::vector<bool>(data_.NumVertices(), false); //initialize key vertex flags
+
     for (uint i = 0; i < data_.NumVertices(); i++)
     if (data_.GetVertexLabel(i) != NOT_EXIST)
     if (query_.GetVertexLabel(match_order[0]) == data_.GetVertexLabel(i))
@@ -217,24 +224,26 @@ void MatCo::BuildCover()
 void MatCo::FindMatCo(uint depth, std::vector<uint> m)
 {
     if (reach_time_limit) return;
-    if (num_initial_results_ >= max_num_results_) return;
-    batches_num++;
+    if (num_initial_results_ >= max_num_results_) return; //max_num_results_ is set to ULONG_MAX by default 
     if(!ComputeCand(depth,m)) {
-        empty_set_num++;
+        empty_set_num++; // exist empty candidate set, return
         return;
     }
     
+    //prune by local candidate space
     #ifdef FullCoverage
     if(depth>=prune_depth_&&FullCoveragePrune(depth,m)) return;
     #endif
 
-    #ifdef CP2LE
+    //optimization with linear enumeration
+    #ifdef CP2LE 
     if(depth == mutiexp_depth_){
-        muti_exp_num++;
         MutiExpansion(m);
         return;
     }
     #endif
+
+    // normal enumeration
     uint u = match_order[depth];
     if(CandidateSets[depth][depth].size() == 0){
         for (size_t i = 0; i < data_.NumVertices(); i++)
@@ -245,7 +254,6 @@ void MatCo::FindMatCo(uint depth, std::vector<uint> m)
         }
     }
     if(CandidateSets[depth][depth].size() == 0) return;
-
     for(uint i =0 ; i< CandidateSets[depth][depth].size();i++){
         uint v = CandidateSets[depth][depth][i];
         if (!homomorphism_ && visited_[v]) continue;
@@ -285,6 +293,7 @@ void MatCo::MutiExpansion(std::vector<uint> m){
         label_check[i] = true;
         label_same_index.clear();
         label_same_index.push_back(i);
+        //find the vertices with the same label in isolated vertices
         for(uint j = mutiexp_depth_;j<query_.NumVertices();j++){
             if(label_check[j]) continue;
             uint ub = match_order[j];
@@ -296,6 +305,7 @@ void MatCo::MutiExpansion(std::vector<uint> m){
         bool flag = false;
         uint u_index = label_same_index[0];
         uint u = match_order[u_index];
+        //DFS to find whether there is a feasible match limit by same label
         for(int s = 0 ; s <CandidateSets[mutiexp_depth_][u_index].size();s++){
             uint v = CandidateSets[mutiexp_depth_][u_index][s];
             if(visited_[v]) continue;
@@ -309,12 +319,14 @@ void MatCo::MutiExpansion(std::vector<uint> m){
             m[u] = UNMATCHED;
             visited_[v] = false;
         }
-        if(!flag) return;
+        if(!flag) return; //no feasible match
     }
+    //Now, we can reduce Cartesian products into linear enumeration.
     CountRes(m);
     FlushFlag(mutiexp_depth_-1);
 }
 void MatCo::CountRes(std::vector<uint> m){
+    //if current match m exists uncovered vertices, then it is a result.
     bool flag_all_cv = true ;
     for(uint i = 0 ; i<query_.NumVertices();i++){
         uint u = match_order[i];
@@ -328,6 +340,7 @@ void MatCo::CountRes(std::vector<uint> m){
         num_initial_results_++;
         if(print_enumeration_results_) PrintMatch(m);
     }
+    //Go through local candidate space of and use uncovered vertices to replace m[u]
     for(uint i = mutiexp_depth_;i<query_.NumVertices();i++){
         for(auto cand:CandidateSets[mutiexp_depth_][i]){
             if(KeyVertexSet[cand]==false){
@@ -348,11 +361,14 @@ void MatCo::CountRes(std::vector<uint> m){
     }
 }
 
+//When backtracking, flush the flag of local candidate space
 void MatCo::FlushFlag(uint flush_depth){
     uint u = match_order[flush_depth];
     for(uint i = flush_depth+1;i<query_.NumVertices();i++){
         uint ub = match_order[i];
         if(adjacency_matrix[u][ub]) continue;
+        // the vertex,which will backtracking, is not adjacent to the local candidate space
+        // so the flag of local candidate space will be true.(all elements of the candidate set are key vertices)
         else{
             CandidateSetFlag[flush_depth][i] = true;
         }
@@ -406,7 +422,7 @@ bool MatCo::VerifyCorrectness(const std::string& kvPath) {
     return kvSet == verifySet;
 }
 
-
+//DFS to find whether there is a feasible match limit by same label
 bool MatCo::MutiExpTest(int depth,const std::vector<uint> &label_same_index, std::vector<uint> &m) {
     if(reach_time_limit) return false;
     if(depth==label_same_index.size()) return true;
@@ -430,13 +446,14 @@ bool MatCo::MutiExpTest(int depth,const std::vector<uint> &label_same_index, std
 
 
 bool MatCo::ComputeCand(uint depth,std::vector<uint> m){
-    uint uf = match_order[depth-1];
-    uint vf = m[uf];
+    uint uf = match_order[depth-1]; // uf is the last matched query vertex
+    uint vf = m[uf]; // vf is the matched vertex of uf
     auto vf_nbrs = data_.GetNeighbors(vf);
     for(uint i = depth;i<query_.NumVertices();i++){
         uint ub = match_order[i];
-        if(adjacency_matrix[uf][ub]){
+        if(adjacency_matrix[uf][ub]){ // uf and ub are adjacent
             CandidateSets[depth][i].clear();
+            //local candidate space is null
             if(CandidateSets[depth-1][i].size() == 0){
                 for(auto vf_nei : vf_nbrs){
                 if (data_.GetVertexLabel(i) != NOT_EXIST)
@@ -445,6 +462,7 @@ bool MatCo::ComputeCand(uint depth,std::vector<uint> m){
                     }
                 } 
             }
+            //local candidate space is not null, intersect with the neighbors of vf
             else{ 
                 std::set_intersection(CandidateSets[depth-1][i].begin(),CandidateSets[depth-1][i].end(),vf_nbrs.begin(),vf_nbrs.end(),std::back_inserter(CandidateSets[depth][i]));
             }
@@ -453,7 +471,7 @@ bool MatCo::ComputeCand(uint depth,std::vector<uint> m){
                 return false;
             }
         }
-        else{
+        else{ // uf and ub are not adjacent, the local candidate space need not modify
             CandidateSets[depth][i] = CandidateSets[depth-1][i];
         }
     }
@@ -464,17 +482,18 @@ bool MatCo::ComputeCand(uint depth,std::vector<uint> m){
 
 bool MatCo::FullCoveragePrune(uint depth,const std::vector<uint> &m){
 
-    full_coverage_test_num++;
+    //check if the current matched vertices are all key vertices
     for(uint i = 0 ; i< depth ; i++){
         uint u= match_order[i];
         if(!KeyVertexSet[m[u]]) {
+            // flush the flag of local candidate space
             for(uint i = depth; i<query_.NumVertices(); i++){
                 CandidateSetFlag[depth][i] = CandidateSetFlag[depth-1][i];
             }
             return false;
         }
     }
-    partial_match_is_all_kv_num++;
+    //check if the local candidate space are all key vertices
     for(uint i = depth; i<query_.NumVertices(); i++){
         if(CandidateSets[depth][i].size()==0) {
             for(uint j = i; j<query_.NumVertices(); j++){
@@ -482,9 +501,7 @@ bool MatCo::FullCoveragePrune(uint depth,const std::vector<uint> &m){
                     }
                     return false;
         }
-        candidate_set_test_num++;
         if(CandidateSetFlag[depth-1][i]){   
-            candidate_set_flag_reuse_num++;
             CandidateSetFlag[depth][i] = true;
         }
         else{
@@ -499,7 +516,7 @@ bool MatCo::FullCoveragePrune(uint depth,const std::vector<uint> &m){
             }
         }
     }
-    full_coverage_suc_num++;
+    //scuccessful prune and flush the flag of local candidate space
     FlushFlag(depth-1);  
     return true;
 }

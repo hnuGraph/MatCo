@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 int main(int argc, char *argv[]){
-    CLI::App app{"App description"};
+    CLI::App app{"App description"}; // Create a CLI11 App to parse command line arguments
     bool print_enum = false, print_prep = false, print_key_vertice = false;
     std::string data_graph_path;
     std::string query_graph_path;
@@ -22,6 +22,7 @@ int main(int argc, char *argv[]){
 
     CLI11_PARSE(app, argc, argv);
 
+    //load data graph and query graph
     Graph data_graph;
     std::cout<<"data graph loading..."<<std::endl;
     data_graph.LoadFromFile(data_graph_path);
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]){
     
     matco  = new MatCo  (query_graph, data_graph, ULONG_MAX, print_prep, print_enum, false);
     std::cout<<"MatCo preprocessing..."<<std::endl;
-
+    
     matco->Preprocessing();
 
     std::cout<<"MatCo initial matching..."<<std::endl;
@@ -48,14 +49,14 @@ int main(int argc, char *argv[]){
     {   
         matco->InitialMatching();
     };
-    execute_with_time_limit(InitialFun, 600*12, reach_time_limit);
+    execute_with_time_limit(InitialFun, 600*12, reach_time_limit); // 2 hours time limit for a single query
 
     int mem_end = mem::getMemUsage();
     std::cout<<"MatCo finished..."<<std::endl;
     size_t MatCo_num_results = 0ul;
     size_t MatCo_num_kv = 0ul;
-    matco->GetNumKeyVertex(MatCo_num_kv);
-    matco->GetNumInitialResults(MatCo_num_results);
+    matco->GetNumKeyVertex(MatCo_num_kv); // get the number of key vertices
+    matco->GetNumInitialResults(MatCo_num_results); // get the number of results
     double time_cost = t.StopTimer_ms();
     std::cout<<"Memory usage: "<<mem_end-mem_start<<" KB"<<std::endl;
     std::cout<<"MatCo time: "<<time_cost<<" ms"<<std::endl;
